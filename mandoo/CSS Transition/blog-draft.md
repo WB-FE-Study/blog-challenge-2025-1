@@ -100,7 +100,7 @@ export default function App() {
 
 이걸 어떻게 활용할 수 있을지 생각해봤는데.. 딱히 사용할 일이 많을 것 같지는 않다.
 - 여러 요소에 순차적으로 Transition 적용
-  - A -> B -> C 순으로 Transtion을 적용하고싶을 때 사용할 수 있지 않을까?
+  - A -> B -> C 순으로 Transition을 적용하고싶을 때 사용할 수 있지 않을까?
   - 근데 이 경우 그냥 keyframe을 쓰는게 나을 것 같음
 - Transition 완료 후에 UI 변경
   - 특정 트랜지션 애니메이션이 완료된 후에 UI를 변경시키고 싶을때?
