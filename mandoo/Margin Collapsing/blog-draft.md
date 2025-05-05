@@ -30,7 +30,7 @@ Margin Collapsing이 발생했다면, margin 값은 부모/자식 사이공간�
 ![](https://velog.velcdn.com/images/mskwon/post/cf28e640-0820-42e3-bab0-bd87b5629dcd/image.png)
 
 ### 빈블럭 Margin Collapsing
-"빈 블럭"에 `margin-top` / `margin-bottom` 값이 적용되어 있는 경우, 더 큰 값으로 Marging Collapsing 되어 한 쪽의 margin만 적용된다.
+"빈 블럭"에 `margin-top` / `margin-bottom` 값이 적용되어 있는 경우, 더 큰 값으로 Margin Collapsing 되어 한 쪽의 margin만 적용된다.
 
 여기서 "빈 블럭"이란, `border`, `padding`, `height`, `min-height` 속성이 명시되어 있지 않고, 인라인콘텐츠 또한 없는 블럭을 말한다.
 
