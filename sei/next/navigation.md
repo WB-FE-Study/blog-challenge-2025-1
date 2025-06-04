@@ -1,5 +1,3 @@
-(내용 보충할 예정입니다!)
-
 # 📍 Next.js에서 Navigation - `<Link>` 와 `<a>`
 
 Next.js에서 페이지 간 이동(Navigation)은 웹 앱의 핵심 요소입니다.
