@@ -11,7 +11,9 @@ NodeJS의 기본 패키지 매니저로 npm이 있었는데 pnpm이 등장하게
 ### 1. npm의 디스크 공간, 설치 속도 문제
 
 npm(v2 이전)은 `Nested Dependency Structure`라는 구조로 의존성을 관리하는데
+
 ![Nested Dependency Structure](./nested-dependency-structure.png)
+
 그림에서 보듯, Module_A@1.0.0을 직접 사용하고 있으면서, Module_B@1.0.0에서도 하위 의존성으로 Module_A@1.0.0을 두고 있다. 동일한 의존성이지만 npm은 Module_A@1.0.0을 두 번 설치한다. 마찬가지로 Module_D@1.0.0도 2번 설치된다.
 이렇게 중복된 모듈이 있는 만큼 CI에서 의존성 설치 시간도 오래걸리게 되었다.
 
