@@ -29,10 +29,10 @@ npm에서는 모듈 중복 문제를 해결하기 위해 `npm v3`부터 의존�
 
 ```json
 {
-  // 내 pacakge.json
+  // 내 package.json
   "dependencies": {
-    "pacakge-a": "^1.0.0",
-    "pacakge-b": "^2.0.0"
+    "package-a": "^1.0.0",
+    "package-b": "^2.0.0"
   }
 }
 ```
@@ -58,7 +58,7 @@ import _ from "lodash";
 그래서 로컬환경에선 정상 동작하던 것이 CI 환경에서는 import할 모듈을 찾지 못한다는 등 큰 문제가 발생하게 될 가능성이 있다.
 
 또, 여러 패키지가 다른 버전 의존할 경우 어떤 버전이 올라올지 예측이 불가능했다.
-pacakge-a가 lodash v1을, package-b가 lodash v2를 사용한다고 했을 때,
+package-a가 lodash v1을, package-b가 lodash v2를 사용한다고 했을 때,
 호이스팅되는 것이 v1인지 v2인지 알수가 없다. package-b가 v1을 사용하게 되어 예기치못한 버그를 만들 수도 있었다.
 
 > 하위의존성에 있는 의존성이 루트로 올라갔는데, 어떻게 상위 의존성은 하위 의존성을 식별할 수 있었을까?
@@ -105,7 +105,7 @@ pnpm은 다음과 같은 단계로 설치한다.
 
 ```
 node_modules/
-├── pacakge-a/
+├── package-a/
 ├── package-b/
 ├── lodash/ → lodash는 package-a, package-b의 하위의존성에 불과함
 ```
@@ -139,6 +139,10 @@ pnpm은 내가 설치한 의존성들은 루트에 올려두고, 하위 의존�
 > node_modules는 그 .pnpm 디렉토리를 symlink로 가리켜 Node.js의 require 탐색 경로와 호환되도록 한다.
 
 <br/>
+<br/>
+<br/>
+
+# pnpm 트러블 슈팅
 
 ### Standalone 빌드할 때, 마주한 문제점
 
@@ -160,8 +164,71 @@ Node.js 앱을 특정 디렉토리 또는 zip/tar 파일로 묶어서
 
 갓빌리는 pnpm deploy로 해결했다.
 
-> References
->
+<br/>
+
+### hoisted mode
+
+사실 이건 pnpm의 문제라기 보다는 npm의 호이스팅 문제를 보여주는 사례다.
+
+expo를 이용하여 월부 앱을 만드는 과정에서 발생한 문제로
+expo 문서에서는 pnpm을 사용할 시 hoisted 모드로 사용하라고 한다.
+(hoisted 모드는 pnpm을 npm처럼 호이스팅을 해서 쓰는 모드이다.)
+
+expo-router라는 라이브러리로 네비게이션을 처리하고 있었으며
+카카오 앱 로그인을 위해 react-native-kakao라는 라이브러리의 core 패키지를 설치하면서
+`TypeError: queryString.stringify is not a function` 라는 에러로 실행조차 되지 않았다.
+의존성 버전 충돌 문제로 의심되어 lock파일을 뜯어보니
+
+#### react-native-kakao/core 의 하위 의존성
+
+```json
+@react-native-kakao/core@2.4.0
+    dependencies:
+      crypto-js: 4.2.0
+      query-string: 9.2.0
+      react: 19.0.0
+```
+
+### react-navigation (expo-router의 하위 의존성으로 react-navigation을 필요로한다)
+
+```json
+  '@react-navigation/core@7.10.0(react@19.0.0)':
+    dependencies:
+      '@react-navigation/routers': 7.4.0
+      escape-string-regexp: 4.0.0
+      nanoid: 3.3.11
+      query-string: 7.1.3
+```
+
+두 버전이 달랐고 실제로 node-modules에는 `query-string@9.2.0` 버전이 호이스팅되어 있었다.
+
+#### 해결책
+
+하위 호환이 되질 않아 에러가 발생한 것으로 query-string 라이브러리의 버전을 7.1.3버전으로 고정했다.
+하위 의존성을 고정하기 위해서 package.json에 아래와 같이 작성했다.
+
+```json
+  "pnpm": {
+    "overrides": {
+      "query-string": "7.1.3"
+    }
+  }
+
+```
+
+다시 의존성 설치를하면 아래 사진과 같이 node_modules에 7.1.3이 호이스팅되고
+정상동작하게 된다.
+
+![hoisted-problem](./hoisted-problem.png)
+
+> 단, override는 다른 의존성과의 충돌 가능성도 있으므로, 사용 시에는 전체 의존성 트리에서 버전 호환성을 점검하는 것이 바람직하다.
+
+<br/>
+<br/>
+<br/>
+
+### References
+
 > - https://pnpm.io/motivation
 > - https://pnpm.io/blog/2020/05/27/flat-node-modules-is-not-the-only-way
 > - https://po4tion.dev/pnpm
